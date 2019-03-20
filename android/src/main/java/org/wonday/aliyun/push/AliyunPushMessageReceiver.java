@@ -11,45 +11,41 @@ package org.wonday.aliyun.push;
 import android.content.Context;
 import android.util.Log;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
+import com.alibaba.sdk.android.push.MessageReceiver;
+import com.alibaba.sdk.android.push.notification.CPushMessage;
+import com.facebook.common.logging.FLog;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.common.ReactConstants;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import java.util.Map;
+
 import javax.annotation.Nullable;
 
-import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.JavaScriptModule;
-import com.facebook.react.bridge.NativeModule;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.common.logging.FLog;
-import com.facebook.react.common.ReactConstants;
-
-import com.alibaba.sdk.android.push.CloudPushService;
-import com.alibaba.sdk.android.push.MessageReceiver;
-import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
-import com.alibaba.sdk.android.push.notification.CPushMessage;
-
 public class AliyunPushMessageReceiver extends MessageReceiver {
+    public final static String TAG = "AliyunPush";
+
     public static ReactApplicationContext context;
     public static AliyunPushMessageReceiver instance;
 
     private final String ALIYUN_PUSH_TYPE_MESSAGE = "message";
     private final String ALIYUN_PUSH_TYPE_NOTIFICATION = "notification";
 
+    private static int mCounter = 0;
+
     public AliyunPushMessageReceiver() {
         super();
         instance = this;
+    }
+
+    public static int getCounter() {
+        return mCounter < 0 ? 0 : mCounter;
+    }
+
+    public static void setCounter(int counter) {
+        mCounter = counter < 0 ? 0 : counter;
     }
 
     @Override
@@ -64,6 +60,9 @@ public class AliyunPushMessageReceiver extends MessageReceiver {
         params.putString("type", ALIYUN_PUSH_TYPE_MESSAGE);
 
         sendEvent("aliyunPushReceived", params);
+
+        mCounter++;
+        Log.d(TAG, "onMessage: " + mCounter);
     }
 
     @Override
@@ -85,6 +84,9 @@ public class AliyunPushMessageReceiver extends MessageReceiver {
         params.putString("type", ALIYUN_PUSH_TYPE_NOTIFICATION);
 
         sendEvent("aliyunPushReceived", params);
+
+        mCounter++;
+        Log.d(TAG, "onNotification: " + mCounter);
     }
 
     @Override
@@ -102,6 +104,9 @@ public class AliyunPushMessageReceiver extends MessageReceiver {
         params.putString("actionIdentifier", "opened");
 
         sendEvent("aliyunPushReceived", params);
+
+        mCounter--;
+        Log.d(TAG, "onNotificationOpened: " + mCounter);
     }
 
     @Override
@@ -119,6 +124,9 @@ public class AliyunPushMessageReceiver extends MessageReceiver {
         params.putString("actionIdentifier", "opened");
 
         sendEvent("aliyunPushReceived", params);
+
+        mCounter--;
+        Log.d(TAG, "onNotificationClickedWithNoAction: " + mCounter);
     }
 
     @Override
@@ -134,6 +142,9 @@ public class AliyunPushMessageReceiver extends MessageReceiver {
         params.putString("actionIdentifier", "removed");
 
         sendEvent("aliyunPushReceived", params);
+
+        mCounter--;
+        Log.d(TAG, "onNotificationRemoved: " + mCounter);
     }
 
     @Override
@@ -158,6 +169,9 @@ public class AliyunPushMessageReceiver extends MessageReceiver {
         params.putString("type", ALIYUN_PUSH_TYPE_NOTIFICATION);
 
         sendEvent("aliyunPushReceived", params);
+
+        mCounter++;
+        Log.d(TAG, "onNotificationReceivedInApp: " + mCounter);
     }
 
     private void sendEvent(String eventName, @Nullable WritableMap params) {

@@ -102,7 +102,8 @@ public class AliyunPushModule extends ReactContextBaseJavaModule implements Life
             try {
 
                 MIUIUtils.setBadgeNumber(this.context, getCurrentActivity().getClass(), badgeNumber);
-                this.badgeNumber = badgeNumber;
+                //this.badgeNumber = badgeNumber;
+                AliyunPushMessageReceiver.setCounter(badgeNumber);
                 promise.resolve("");
 
             } catch (Exception e) {
@@ -117,7 +118,7 @@ public class AliyunPushModule extends ReactContextBaseJavaModule implements Life
 
             try {
                 ShortcutBadger.applyCount(this.context, badgeNumber);
-                this.badgeNumber = badgeNumber;
+                AliyunPushMessageReceiver.setCounter(badgeNumber);
                 promise.resolve("");
             } catch (Exception e){
                 promise.reject(e.getMessage());
@@ -128,8 +129,9 @@ public class AliyunPushModule extends ReactContextBaseJavaModule implements Life
 
     @ReactMethod
     public void getApplicationIconBadgeNumber(Callback callback) {
-        callback.invoke(this.badgeNumber);
+        callback.invoke(AliyunPushMessageReceiver.getCounter());
     }
+
 
     @ReactMethod
     public void bindAccount(String account, final Promise promise) {
@@ -262,7 +264,8 @@ public class AliyunPushModule extends ReactContextBaseJavaModule implements Life
         //小米特殊处理, 处于后台时更新角标， 否则会被系统清除，看不到
         if (MIUIUtils.isMIUI()) {
             FLog.d(ReactConstants.TAG, "onHostPause:setBadgeNumber for xiaomi");
-            MIUIUtils.setBadgeNumber(this.context, getCurrentActivity().getClass(), badgeNumber);
+            //MIUIUtils.setBadgeNumber(this.context, getCurrentActivity().getClass(), badgeNumber);
+            MIUIUtils.setBadgeNumber(this.context, getCurrentActivity().getClass(), AliyunPushMessageReceiver.getCounter());
         }
 
     }
@@ -273,13 +276,8 @@ public class AliyunPushModule extends ReactContextBaseJavaModule implements Life
         //小米特殊处理, 处于后台时更新角标， 否则会被系统清除，看不到
         if (MIUIUtils.isMIUI()) {
             FLog.d(ReactConstants.TAG, "onHostDestroy:setBadgeNumber for xiaomi");
-            MIUIUtils.setBadgeNumber(this.context, getCurrentActivity().getClass(), badgeNumber);
+            MIUIUtils.setBadgeNumber(this.context, getCurrentActivity().getClass(), AliyunPushMessageReceiver.getCounter());
         }
 
-    }
-
-    @ReactMethod
-    public void getInitialMessage(final Promise promise){
-        promise.resolve(AliyunPushMessageReceiver.initialMessage);
     }
 }
